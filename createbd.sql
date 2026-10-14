@@ -31,7 +31,7 @@ create TABLE proyecto (
     idProyecto INT AUTO_INCREMENT PRIMARY KEY,
     nombProyecto VARCHAR(100) NOT NULL UNIQUE,
     descripProyecto VARCHAR(200),
-    fchInicio DATE,
+    fchInicio DATE
 );
 
 create TABLE registroTiempo (
@@ -40,7 +40,7 @@ create TABLE registroTiempo (
     horaInicio TIME NOT NULL,
     horaTermino TIME NOT NULL,
     descripTareas VARCHAR(200),
-    idEmpleado INT NOT NULL,
+    idEmple INT NOT NULL,
     idProyecto INT NOT NULL,
     FOREIGN KEY (idEmple) REFERENCES empleado(idEmple),
     FOREIGN KEY (idProyecto) REFERENCES proyecto(idProyecto)
