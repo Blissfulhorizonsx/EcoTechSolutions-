@@ -1,0 +1,168 @@
+@startuml
+skinparam classAttributeIconSize 0
+skinparam shadowing false
+skinparam class {
+    BackgroundColor White
+    ArrowColor #2c3e50
+    BorderColor #2c3e50
+}
+
+class Usuario {
+    - idUsuario: int
+    - nombreUsuario: String
+    - contrasena: String
+    - rol: String
+    + getIdUsuario(): int
+    + getNombreUsuario(): String
+    + getContrasena(): String
+    + getRol(): String
+    + setIdUsuario(idUsuario: int): void
+    + setNombreUsuario(nombreUsuario: String): void
+    + setContrasena(contrasena: String): void
+    + setRol(rol: String): void
+}
+
+class Administrador {
+    + esAdmin(): Boolean
+}
+
+class Empleado {
+    - idEmple: int
+    - nombEmplea: String
+    - direccEmple: String
+    - numEmple: String
+    - mailEmple: String
+    - fchContrato: Date
+    - salarioCifrado: String
+    - idDepart: int
+    + obtenerSalarioDescifrado(): Float
+    + getIdEmple(): int
+    + getNombEmplea(): String
+    + getDireccEmple(): String
+    + getNumEmple(): String
+    + getMailEmple(): String
+    + getFchContrato(): Date
+    + getSalarioCifrado(): String
+    + getIdDepart(): int
+    + setIdEmple(v: int): void
+    + setNombEmplea(v: String): void
+    + setDireccEmple(v: String): void
+    + setNumEmple(v: String): void
+    + setMailEmple(v: String): void
+    + setFchContrato(v: Date): void
+    + setSalarioCifrado(v: String): void
+    + setIdDepart(v: int): void
+}
+
+class Departamento {
+    - idDepart: int
+    - nombDepart: String
+    - gerentDepart: String
+    + getIdDepart(): int
+    + getNombDepart(): String
+    + getGerentDepart(): String
+    + setIdDepart(v: int): void
+    + setNombDepart(v: String): void
+    + setGerentDepart(v: String): void
+}
+
+class Proyecto {
+    - idProyecto: int
+    - nombProyecto: String
+    - descripProyecto: String
+    - fchInicio: Date
+    + getIdProyecto(): int
+    + getNombProyecto(): String
+    + getDescripProyecto(): String
+    + getFchInicio(): Date
+    + setIdProyecto(v: int): void
+    + setNombProyecto(v: String): void
+    + setDescripProyecto(v: String): void
+    + setFchInicio(v: Date): void
+}
+
+class Asignacion {
+    - idAsign: int
+    - fechaAsignacion: Date
+    - idEmple: int
+    - idProyecto: int
+    + getIdAsign(): int
+    + getFechaAsignacion(): Date
+    + getIdEmple(): int
+    + getIdProyecto(): int
+    + setIdAsign(v: int): void
+    + setFechaAsignacion(v: Date): void
+    + setIdEmple(v: int): void
+    + setIdProyecto(v: int): void
+}
+
+class RegistroTiempo {
+    - idRegistro: int
+    - fchTrabajo: Date
+    - horaInicio: String
+    - horaTermino: String
+    - descripTareas: String
+    - idEmple: int
+    - idProyecto: int
+    - {static} aTimedelta(valor: any): timedelta
+    + calcularHoras(): String
+    + getIdRegistro(): int
+    + getFchTrabajo(): Date
+    + getHoraInicio(): String
+    + getHoraTermino(): String
+    + getDescripTareas(): String
+    + getIdEmple(): int
+    + getIdProyecto(): int
+    + setIdRegistro(v: int): void
+    + setFchTrabajo(v: Date): void
+    + setHoraInicio(v: String): void
+    + setHoraTermino(v: String): void
+    + setDescripTareas(v: String): void
+    + setIdEmple(v: int): void
+    + setIdProyecto(v: int): void
+}
+
+class Informe {
+    - idInforme: int
+    - fchGeneracion: Date
+    - formato: String
+    - contenido: String
+    - idUsuario: int
+    + getIdInforme(): int
+    + getFchGeneracion(): Date
+    + getFormato(): String
+    + getContenido(): String
+    + getIdUsuario(): int
+    + setIdInforme(v: int): void
+    + setFchGeneracion(v: Date): void
+    + setFormato(v: String): void
+    + setContenido(v: String): void
+    + setIdUsuario(v: int): void
+}
+
+class ValidadorSeguridad {
+    - {static} clave: bytes
+    - {static} cargarClave(): bytes
+    + sanitizar_entrada(dato: String): String
+    + cifrar_dato_sensible(dato: String): String
+    + descifrar_dato_sensible(dato: String): String
+}
+
+' RELACIONES
+
+' Herencia
+Usuario <|-- Administrador
+Usuario <|-- Empleado
+
+' Asociaciones y Multiplicidades
+Departamento "1" <-- "*" Empleado : pertenece a >
+Empleado "1" <-- "*" Asignacion : tiene <
+Proyecto "1" <-- "*" Asignacion : recibe <
+Empleado "1" <-- "*" RegistroTiempo : registra <
+Proyecto "1" <-- "*" RegistroTiempo : recibe <
+Usuario "1" <-- "*" Informe : genera <
+
+' Dependencias de uso
+Empleado ..> ValidadorSeguridad : usa para descifrar >
+
+@enduml
