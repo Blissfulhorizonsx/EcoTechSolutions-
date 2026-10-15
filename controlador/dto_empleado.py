@@ -16,6 +16,7 @@ class EmpleadoDTO:
     def buscarEmpleado(self, idEmple: int) -> Empleado:
         r = DaoEmpleado().buscarEmpleado(Empleado("", idEmple=idEmple))
         return self.__armar(r) if r is not None else None
+    
     def buscarPorUsuario(self, idUsuario: int) -> Empleado:
         r = DaoEmpleado().buscarPorUsuario(Empleado("", idUsuario=idUsuario))
         return self.__armar(r) if r is not None else None

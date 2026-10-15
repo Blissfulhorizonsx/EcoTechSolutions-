@@ -13,10 +13,6 @@ from controlador.dto_informe import InformeDTO
 ANCHO = 60
 
 
-# ==========================================
-# 1. FORMATO VISUAL
-# ==========================================
-
 def banner(titulo: str, subtitulo: str = "") -> None:
     print("\n" + "=" * ANCHO)
     print(titulo.center(ANCHO))
@@ -41,6 +37,13 @@ def ok(mensaje: str) -> None:
 def error(mensaje: str) -> None:
     print(f"\n  [!] {mensaje}")
 
+def resultado(mensaje: str) -> None:
+    texto = str(mensaje).lower()
+    if "problema" in texto or "error" in texto:
+        error(mensaje)
+    else:
+        ok(mensaje)
+
 def pausa() -> None:
     input("\n  Presione ENTER para continuar...")
 
@@ -60,11 +63,6 @@ def tabla(columnas: list, filas: list) -> None:
     for fila in filas:
         print("  | " + " | ".join(str(c).ljust(anchos[i]) for i, c in enumerate(fila)) + " |")
     print(linea)
-
-
-# ==========================================
-# 2. ENTRADA DE DATOS
-# ==========================================
 
 def solicitar_entero(mensaje: str) -> int:
     while True:
@@ -122,9 +120,6 @@ def valida_opc(max_opc: int) -> int:
         error(f"Opción no válida. Ingrese un valor entre 1 y {max_opc}.")
 
 
-# ==========================================
-# 3. REGLAS DE VALIDACIÓN
-# ==========================================
 
 def validar_correo(correo: str) -> bool:
     return bool(re.match(r'^[\w\.-]+@[\w\.-]+\.\w+$', correo))
@@ -133,9 +128,8 @@ def validar_formato_informe(formato: str) -> bool:
     return formato.upper() in ["PDF", "CSV", "EXCEL", "TXT"]
 
 
-# ==========================================
-# 4. LOGIN
-# ==========================================
+
+
 
 def validate_login():
     encabezado("AUTENTICACIÓN")
@@ -144,9 +138,6 @@ def validate_login():
     return UsuarioDTO().validarLogin(username, clave)
 
 
-# ==========================================
-# 5. EMPLEADOS
-# ==========================================
 
 def validate_listar_empleados():
     encabezado("LISTADO DE EMPLEADOS")
@@ -170,21 +161,28 @@ def validate_crear_empleado():
     fecha_inicio = solicitar_fecha("  Inicio contrato (AAAA-MM-DD): ")
     salario = solicitar_flotante("  Salario bruto   : ")
     id_dept = solicitar_entero("  ID Departamento (0 si no tiene): ")
+    validate_listar_usuarios()
     id_usuario = solicitar_entero("  ID Usuario asociado (0 si no tiene): ")
 
     mensaje = EmpleadoDTO().agregarEmpleado(
         nombre, direccion, telefono, correo, fecha_inicio, salario,
         id_dept if id_dept > 0 else None,
         id_usuario if id_usuario > 0 else None)
-    ok(mensaje)
+    resultado(mensaje)
 
 def validate_agregar_empleado_dept():
     encabezado("ASIGNAR EMPLEADO A DEPARTAMENTO")
+    validate_listar_empleados()
+    validate_listar_departamentos()
     id_emp = solicitar_entero("  ID Empleado     : ")
     id_dept = solicitar_entero("  ID Departamento : ")
-    ok(EmpleadoDTO().asignarDepartamento(id_emp, id_dept))
+    resultado(EmpleadoDTO().asignarDepartamento(id_emp, id_dept))
 
-
+def validate_listar_usuarios():
+    encabezado("LISTADO DE USUARIOS")
+    lista = UsuarioDTO().listarUsuarios()
+    tabla(["ID", "Usuario", "Rol"],
+          [[u.getIdUsuario(), u.getNombreUsuario(), u.getRol()] for u in lista])
 
 def validate_crear_usuario():
     encabezado("CREAR USUARIO")
@@ -196,7 +194,7 @@ def validate_crear_usuario():
         error("La contraseña debe tener al menos 8 caracteres.")
     mostrar_menu("ROL", ["EMPLEADO", "ADMIN"])
     rol = "EMPLEADO" if valida_opc(2) == 1 else "ADMIN"
-    ok(UsuarioDTO().agregarUsuario(nombre, clave, rol))
+    resultado(UsuarioDTO().agregarUsuario(nombre, clave, rol))
 
 
 
@@ -210,8 +208,7 @@ def validate_crear_departamento():
     encabezado("CREAR DEPARTAMENTO")
     nombre = solicitar_texto("  Nombre del departamento : ", min_len=3)
     gerente = input("  Gerente (opcional)      : ").strip()
-    ok(DepartamentoDTO().agregarDepartamento(nombre, gerente))
-
+    resultado(DepartamentoDTO().agregarDepartamento(nombre, gerente))
 
 
 def validate_listar_proyectos():
@@ -226,14 +223,15 @@ def validate_crear_proyecto():
     nombre = solicitar_texto("  Nombre del proyecto : ", min_len=3)
     descripcion = solicitar_texto("  Descripción         : ")
     fecha_inicio = solicitar_fecha("  Inicio (AAAA-MM-DD) : ")
-    ok(ProyectoDTO().agregarProyecto(nombre, descripcion, fecha_inicio))
+    resultado(ProyectoDTO().agregarProyecto(nombre, descripcion, fecha_inicio))
 
 def validate_asignar_proyecto():
     encabezado("ASIGNAR EMPLEADO A PROYECTO")
+    validate_listar_empleados()
+    validate_listar_proyectos()
     id_emp = solicitar_entero("  ID Empleado : ")
     id_proy = solicitar_entero("  ID Proyecto : ")
-    ok(AsignacionDTO().asignar(id_emp, id_proy))
-
+    resultado(AsignacionDTO().asignar(id_emp, id_proy))
 
 def __obtener_id_empleado(usuario):
     """Empleado: usa su propio id. Admin: elige el empleado."""
@@ -255,7 +253,7 @@ def validate_registrar_tiempo(usuario):
     hora_inicio = solicitar_hora("  Hora de inicio          : ")
     hora_termino = solicitar_hora("  Hora de término         : ")
     descripcion = solicitar_texto("  Tareas realizadas       : ", min_len=5)
-    ok(RegistroTiempoDTO().registrarTiempo(
+    resultado(RegistroTiempoDTO().registrarTiempo(
         id_emp, id_proy, fecha, hora_inicio, hora_termino, descripcion))
 
 def validate_ver_registros(usuario):
@@ -275,7 +273,12 @@ def validate_generar_informe(usuario_actual):
     if usuario_actual is None or usuario_actual.getRol() != "ADMIN":
         error("Solo los administradores pueden generar informes.")
         return
-
+    
+    proyectos = ProyectoDTO().listarProyectos()
+    if not proyectos:
+        error("No hay proyectos registrados. Cree uno primero.")
+        return
+    validate_listar_proyectos()
     id_proy = solicitar_entero("  ID del proyecto         : ")
     desde = datetime.strptime(solicitar_fecha("  Desde (AAAA-MM-DD)      : "), "%Y-%m-%d").date()
     hasta = datetime.strptime(solicitar_fecha("  Hasta (AAAA-MM-DD)      : "), "%Y-%m-%d").date()
