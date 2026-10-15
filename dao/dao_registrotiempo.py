@@ -16,7 +16,7 @@ class DaoRegistroTiempo:
         result = None
         try:
             cursor = objetoConex.getConex().cursor()
-            cursor.execute("SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmpleado, idProyecto FROM registroTiempo")
+            cursor.execute("SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmple, idProyecto FROM registroTiempo")
             result = cursor.fetchall()
         except Exception as ex:
             print(traceback.print_exc())
@@ -25,7 +25,7 @@ class DaoRegistroTiempo:
         return result
 
     def buscarRegistroTiempo(self, reg: object) -> dict:
-        sql = "SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmpleado, idProyecto FROM registroTiempo WHERE idRegistro = %s"
+        sql = "SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmple, idProyecto FROM registroTiempo WHERE idRegistro = %s"
         resultado = None
         objetoConex = self.getConex()
         try:
@@ -38,13 +38,13 @@ class DaoRegistroTiempo:
             objetoConex.closeConex()
         return resultado
 
-    def agregarRegistroTiempo(self, reg: object) -> str:
-        sql = "INSERT INTO registroTiempo (fchTrabajo, horaInicio, horaTermino, descripTareas, idEmpleado, idProyecto) VALUES (%s, %s, %s, %s, %s, %s)"
+    def agregarRegistro(self, reg: object) -> str:
+        sql = "INSERT INTO registroTiempo (fchTrabajo, horaInicio, horaTermino, descripTareas, idEmple, idProyecto) VALUES (%s, %s, %s, %s, %s, %s)"
         objetoConex = self.getConex()
         mensaje = ""
         try:
             cursor = objetoConex.getConex().cursor()
-            cursor.execute(sql, (reg.getFchTrabajo(), reg.getHoraInicio(), reg.getHoraTermino(), reg.getDescripTareas(), reg.getIdEmpleado(), reg.getIdProyecto()))
+            cursor.execute(sql, (reg.getFchTrabajo(), reg.getHoraInicio(), reg.getHoraTermino(), reg.getDescripTareas(), reg.getIdEmple(), reg.getIdProyecto()))
             objetoConex.getConex().commit()
             filas = cursor.rowcount
             if filas > 0:
@@ -58,13 +58,13 @@ class DaoRegistroTiempo:
             objetoConex.closeConex()
         return mensaje
 
-    def actualizarRegistroTiempo(self, reg: object) -> str:
-        sql = "UPDATE registroTiempo SET fchTrabajo=%s, horaInicio=%s, horaTermino=%s, descripTareas=%s, idEmpleado=%s, idProyecto=%s WHERE idRegistro=%s"
+    def editarRegistro(self, reg: object) -> str:
+        sql = "UPDATE registroTiempo SET fchTrabajo=%s, horaInicio=%s, horaTermino=%s, descripTareas=%s, idEmple=%s, idProyecto=%s WHERE idRegistro=%s"
         objetoConex = self.getConex()
         mensaje = ""
         try:
             cursor = objetoConex.getConex().cursor()
-            cursor.execute(sql, (reg.getFchTrabajo(), reg.getHoraInicio(), reg.getHoraTermino(), reg.getDescripTareas(), reg.getIdEmpleado(), reg.getIdProyecto(), reg.getIdRegistro()))
+            cursor.execute(sql, (reg.getFchTrabajo(), reg.getHoraInicio(), reg.getHoraTermino(), reg.getDescripTareas(), reg.getIdEmple(), reg.getIdProyecto(), reg.getIdRegistro()))
             objetoConex.getConex().commit()
             filas = cursor.rowcount
             if filas > 0:
@@ -78,7 +78,7 @@ class DaoRegistroTiempo:
             objetoConex.closeConex()
         return mensaje
 
-    def eliminarRegistroTiempo(self, reg: object) -> str:
+    def eliminarRegistro(self, reg: object) -> str:
         sql = "DELETE FROM registroTiempo WHERE idRegistro = %s"
         objetoConex = self.getConex()
         mensaje = ""
@@ -97,3 +97,31 @@ class DaoRegistroTiempo:
         finally:
             objetoConex.closeConex()
         return mensaje
+
+    def listarPorEmpleado(self, reg: object) -> tuple:
+        sql = "SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmple, idProyecto FROM registroTiempo WHERE idEmple = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (reg.getIdEmple(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado
+
+    def listarPorProyecto(self, reg: object) -> tuple:
+        sql = "SELECT idRegistro, fchTrabajo, horaInicio, horaTermino, descripTareas, idEmple, idProyecto FROM registroTiempo WHERE idProyecto = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (reg.getIdProyecto(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado

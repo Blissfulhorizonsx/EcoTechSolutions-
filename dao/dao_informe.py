@@ -29,7 +29,7 @@ class DaoInforme:
         resultado = None
         objetoConex = self.getConex()
         try:
-            cursor = objetoConex.getCo  nex().cursor()
+            cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (info.getIdInforme(),))
             resultado = cursor.fetchone()
         except Exception as ex:
@@ -97,3 +97,17 @@ class DaoInforme:
         finally:
             objetoConex.closeConex()
         return mensaje
+
+    def listarPorUsuario(self, info: object) -> tuple:
+        sql = "SELECT idInforme, fchGeneracion, formato, contenido, idUsuario FROM informe WHERE idUsuario = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (info.getIdUsuario(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado

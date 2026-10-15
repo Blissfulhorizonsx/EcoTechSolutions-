@@ -97,3 +97,23 @@ class DaoUsuario:
         finally:
             objetoConex.closeConex()
         return mensaje
+
+    def cambiarPassword(self, user: object) -> str:
+        sql = "UPDATE usuario SET contrasenaHash=%s WHERE idUsuario=%s"
+        objetoConex = self.getConex()
+        mensaje = ""
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (user.getContrasenaHash(), user.getIdUsuario()))
+            objetoConex.getConex().commit()
+            filas = cursor.rowcount
+            if filas > 0:
+                mensaje = "Contraseña modificada satisfactoriamente"
+            else:
+                mensaje = "No se realizaron cambios"
+        except Exception as ex:
+            print(traceback.print_exc())
+            mensaje = "Problemas con la base de datos..vuelva a intentarlo"
+        finally:
+            objetoConex.closeConex()
+        return mensaje

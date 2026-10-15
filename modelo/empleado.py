@@ -1,11 +1,14 @@
+from modelo.usuario import Usuario
 from seguridad.validador_seguridad import ValidadorSeguridad
 
-class Empleado:
+class Empleado(Usuario):
     def __init__(self, nombEmplea, direccEmple="", numEmple="", mailEmple="",
                  fchContrato=None, salarioCifrado="", idDepart=None,
-                 idUsuario=None, idEmple=None):
+                 idUsuario=None, idEmple=None, nombreUsuario="", contrasena=""):
+        
+        super().__init__(nombreUsuario, contrasena, "EMPLEADO", idUsuario)
+        
         self.__idEmple = idEmple
-        self.__idUsuario = idUsuario
         self.__nombEmplea = nombEmplea
         self.__direccEmple = direccEmple
         self.__numEmple = numEmple
@@ -22,9 +25,8 @@ class Empleado:
             return 0.0
         return float(ValidadorSeguridad().descifrar_dato_sensible(self.__salarioCifrado))
 
-    # getters
+    # Getters
     def getIdEmple(self): return self.__idEmple
-    def getIdUsuario(self): return self.__idUsuario
     def getNombEmplea(self): return self.__nombEmplea
     def getDireccEmple(self): return self.__direccEmple
     def getNumEmple(self): return self.__numEmple
@@ -33,9 +35,8 @@ class Empleado:
     def getSalarioCifrado(self): return self.__salarioCifrado
     def getIdDepart(self): return self.__idDepart
 
-    # setters
+    # Setters
     def setIdEmple(self, v): self.__idEmple = v
-    def setIdUsuario(self, v): self.__idUsuario = v
     def setNombEmplea(self, v): self.__nombEmplea = v
     def setDireccEmple(self, v): self.__direccEmple = v
     def setNumEmple(self, v): self.__numEmple = v

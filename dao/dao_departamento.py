@@ -97,3 +97,17 @@ class DaoDepartamento:
         finally:
             objetoConex.closeConex()
         return mensaje
+
+    def listarEmpleados(self, depart: object) -> tuple:
+        sql = "SELECT idEmple, idUsuario, nombEmplea, direccEmple, numEmple, mailEmple, fchContrato, salarioCifrado, idDepart FROM empleado WHERE idDepart = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (depart.getIdDepart(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado

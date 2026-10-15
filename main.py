@@ -1,5 +1,5 @@
-from vista.validaciones import menu_principal, validate_login
-
+# CAMBIO: Se importa'inicial' en lugar de 'menu_principal'
+from vista.validaciones import inicial, validate_login
 
 ##### login
 intentos = 1
@@ -8,8 +8,10 @@ while intentos <= 3:
     try:
         usuario = validate_login()
         if usuario is not None:
-            print(f"Bienvenido(a) Sr(a). : {usuario.getUsername()}")
-            menu_principal()
+            print(f"Bienvenido(a) Sr(a). : {usuario.getNombreUsuario()}")
+            
+            # CAMBIO 2: Llamar a inicial(usuario) para arrancar el bucle del sistema
+            inicial(usuario)
             break
         else:
             print("usuario o contraseña incorrecta")

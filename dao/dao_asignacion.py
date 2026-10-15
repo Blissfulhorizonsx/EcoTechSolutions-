@@ -79,21 +79,50 @@ class DaoAsignacion:
         return mensaje
 
     def eliminarAsignacion(self, asign: object) -> str:
-        sql = "DELETE FROM asignacion WHERE idAsign = %s"
+        sql = "DELETE FROM asignacion WHERE idEmple = %s AND idProyecto = %s"
         objetoConex = self.getConex()
         mensaje = ""
         try:
             cursor = objetoConex.getConex().cursor()
-            cursor.execute(sql, (asign.getIdAsign(),))
+            # CAMBIO: Ahora pasamos los dos ID en la tupla de execute.
+            cursor.execute(sql, (asign.getIdEmple(), asign.getIdProyecto()))
             objetoConex.getConex().commit()
             filas = cursor.rowcount
             if filas > 0:
                 mensaje = "Asignación eliminada satisfactoriamente"
             else:
-                mensaje = "No se realizaron cambios"
+                mensaje = "No se encontraron registros para eliminar"
         except Exception as ex:
             print(traceback.print_exc())
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
         return mensaje
+    
+    def listarPorEmpleado(self, asign: object) -> tuple:
+        sql = "SELECT idAsign, fechaAsignacion, idEmple, idProyecto FROM asignacion WHERE idEmple = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (asign.getIdEmple(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado
+
+    def listarPorProyecto(self, asign: object) -> tuple:
+        sql = "SELECT idAsign, fechaAsignacion, idEmple, idProyecto FROM asignacion WHERE idProyecto = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (asign.getIdProyecto(),))
+            resultado = cursor.fetchall()
+        except Exception as ex:
+            print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado

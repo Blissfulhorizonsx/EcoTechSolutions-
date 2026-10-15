@@ -97,3 +97,23 @@ class DaoEmpleado:
         finally:
             objetoConex.closeConex()
         return mensaje
+
+    def asignarDepartamento(self, emple: object) -> str:
+        sql = "UPDATE empleado SET idDepart=%s WHERE idEmple=%s"
+        objetoConex = self.getConex()
+        mensaje = ""
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (emple.getIdDepart(), emple.getIdEmple()))
+            objetoConex.getConex().commit()
+            filas = cursor.rowcount
+            if filas > 0:
+                mensaje = "Departamento asignado satisfactoriamente"
+            else:
+                mensaje = "No se realizaron cambios"
+        except Exception as ex:
+            print(traceback.print_exc())
+            mensaje = "Problemas con la base de datos..vuelva a intentarlo"
+        finally:
+            objetoConex.closeConex()
+        return mensaje

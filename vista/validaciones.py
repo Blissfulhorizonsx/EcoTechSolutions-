@@ -1,12 +1,18 @@
 import re
 from datetime import datetime
 
+from controlador.dto_departamento import DepartamentoDTO
+from controlador.dto_empleado import EmpleadoDTO
+from controlador.dto_usuario import UsuarioDTO
+from controlador.dto_proyecto import ProyectoDTO
+from controlador.dto_registrotiempo import RegistroTiempoDTO
+from controlador.dto_informe import InformeDTO
+
 # ==========================================
 # 1. FUNCIONES AUXILIARES DE ENTRADA Y FORMATO
 # ==========================================
 
 def solicitar_entero(mensaje: str) -> int:
-    """Garantiza el ingreso de un número entero."""
     while True:
         try:
             return int(input(mensaje))
@@ -14,7 +20,6 @@ def solicitar_entero(mensaje: str) -> int:
             print("Error: Debe ingresar un número entero válido.")
 
 def solicitar_flotante(mensaje: str) -> float:
-    """Garantiza el ingreso de un número decimal/float."""
     while True:
         try:
             return float(input(mensaje))
@@ -22,7 +27,6 @@ def solicitar_flotante(mensaje: str) -> float:
             print("Error: Debe ingresar un número válido (ej. 7.5).")
 
 def solicitar_texto(mensaje: str, min_len: int = 1) -> str:
-    """Solicita un texto y asegura un largo mínimo."""
     while True:
         valor = input(mensaje).strip()
         if len(valor) >= min_len:
@@ -30,7 +34,6 @@ def solicitar_texto(mensaje: str, min_len: int = 1) -> str:
         print(f"Error: El campo debe contener al menos {min_len} caracter(es).")
 
 def solicitar_fecha(mensaje: str) -> str:
-    """Garantiza una fecha con formato YYYY-MM-DD."""
     while True:
         fec = input(mensaje).strip()
         try:
@@ -40,7 +43,6 @@ def solicitar_fecha(mensaje: str) -> str:
             print("Error: Fecha inválida. Utilice el formato YYYY-MM-DD.")
 
 def solicitar_confirmacion(mensaje: str) -> bool:
-    """Solicita confirmación Y/N al usuario."""
     while True:
         resp = input(f"{mensaje} (S/N): ").strip().upper()
         if resp in ["S", "Y"]:
@@ -51,59 +53,52 @@ def solicitar_confirmacion(mensaje: str) -> bool:
 
 
 # ==========================================
-# 2. VALIDACIONES DE REGLAS DE NEGOCIO Y DTO
+# 2. VALIDACIONES DE REGLAS DE NEGOCIO
 # ==========================================
 
 def validar_correo(correo: str) -> bool:
-    """Valida sintaxis de correo electrónico."""
     patron = r'^[\w\.-]+@[\w\.-]+\.\w+$'
     return bool(re.match(patron, correo))
 
 def validar_horas_trabajo(horas: float) -> bool:
-    """Valida que la cantidad de horas asignadas a un RegistroTiempo sea razonable."""
     if 0.5 <= horas <= 24.0:
         return True
     print("Error: Las horas registradas deben estar entre 0.5 y 24.0 horas.")
     return False
 
 def validar_formato_informe(formato: str) -> bool:
-    """Valida que el formato del informe sea soportado."""
     formatos_valida = ["PDF", "CSV", "EXCEL", "TXT"]
     return formato.upper() in formatos_valida
 
 
 # ==========================================
-# 3. INTERFACES DE VALIDACIÓN Y FLUJO (MENÚS)
+# 3. INTERFACES DE VALIDACIÓN Y FLUJO
 # ==========================================
 
-# --- DEPARTAMENTO ---
 def validate_crear_departamento():
     print("\n------------------------------")
     print(" Crear Departamento ")
     print("------------------------------")
     nombre = solicitar_texto("Nombre del Departamento: ", min_len=3)
+    gerente = input("Nombre del Gerente (Opcional): ").strip()
     
-    # AQUÍ LLAMAS A TU DTO / DAO:
-    # Ej: DepartamentoDTO().crear_departamento(nombre)
-    print(f"-> Validación exitosa para Departamento: '{nombre}'")
+    mensaje = DepartamentoDTO().agregarDepartamento(nombre, gerente)
+    print(f"-> {mensaje}")
 
 def validate_agregar_empleado_dept():
     print("\n------------------------------")
     print(" Agregar Empleado a Depto ")
     print("------------------------------")
-    id_emp = solicitar_texto("ID Empleado: ")
-    id_dept = solicitar_texto("ID Departamento: ")
+    id_emp = solicitar_entero("ID Empleado: ")
+    id_dept = solicitar_entero("ID Departamento: ")
     
-    # Validar existencia con tu DTO antes de asignar
-    print(f"-> Empleado '{id_emp}' asignado a Depto '{id_dept}'.")
+    mensaje = EmpleadoDTO().asignarDepartamento(id_emp, id_dept)
+    print(f"-> {mensaje}")
 
-
-# --- EMPLEADO Y USUARIO ---
 def validate_crear_empleado():
     print("\n------------------------------")
     print(" Registrar Empleado ")
     print("------------------------------")
-    id_emp = solicitar_texto("ID Empleado: ")
     nombre = solicitar_texto("Nombre Completo: ", min_len=3)
     direccion = solicitar_texto("Dirección: ")
     telefono = solicitar_texto("Teléfono: ")
@@ -116,10 +111,16 @@ def validate_crear_empleado():
         
     fecha_inicio = solicitar_fecha("Fecha inicio contrato (YYYY-MM-DD): ")
     salario_bruto = solicitar_flotante("Salario bruto: ")
+    id_dept = solicitar_entero("ID Departamento (o 0 si no tiene): ")
+    id_usuario = solicitar_entero("ID Usuario asociado (o 0 si no tiene): ")
 
-    # AQUÍ LLAMAS A TU DTO:
-    # Se recomienda sanitizar o cifrar el salario usando ValidadorSeguridadDTO si corresponde.
-    print(f"-> Empleado '{nombre}' listo para registrarse en el DAO.")
+    id_d = id_dept if id_dept > 0 else None
+    id_u = id_usuario if id_usuario > 0 else None
+
+    mensaje = EmpleadoDTO().agregarEmpleado(
+        nombre, direccion, telefono, correo, fecha_inicio, salario_bruto, id_d, id_u
+    )
+    print(f"-> {mensaje}")
 
 def validate_login():
     print("\n------------------------------")
@@ -128,63 +129,66 @@ def validate_login():
     username = solicitar_texto("Username: ")
     password = solicitar_texto("Contraseña: ")
     
-    # AQUÍ LLAMAS A TU DTO:
-    # res = UsuarioDTO().autenticar(username, password)
-    print(f"-> Intento de login para '{username}' procesado.")
+    usuario = UsuarioDTO().validarLogin(username, password)
+    return usuario
 
-
-# --- PROYECTO ---
 def validate_crear_proyecto():
     print("\n------------------------------")
     print(" Crear Proyecto ")
     print("------------------------------")
-    id_proy = solicitar_texto("ID Proyecto: ")
     nombre = solicitar_texto("Nombre del Proyecto: ", min_len=3)
     descripcion = solicitar_texto("Descripción: ")
     fecha_inicio = solicitar_fecha("Fecha de Inicio (YYYY-MM-DD): ")
 
-    # AQUÍ LLAMAS A TU DTO:
-    # ProyectoDTO().crear_proyecto(...)
-    print(f"-> Proyecto '{nombre}' validado.")
+    mensaje = ProyectoDTO().agregarProyecto(nombre, descripcion, fecha_inicio)
+    print(f"-> {mensaje}")
 
-
-# --- REGISTRO DE TIEMPO ---
 def validate_registrar_tiempo():
     print("\n------------------------------")
     print(" Registrar Horas Trabajadas ")
     print("------------------------------")
-    id_emp = solicitar_texto("ID Empleado: ")
-    id_proy = solicitar_texto("ID Proyecto: ")
+    id_emp = solicitar_entero("ID Empleado: ")
+    id_proy = solicitar_entero("ID Proyecto: ")
     fecha = solicitar_fecha("Fecha de trabajo (YYYY-MM-DD): ")
     
-    while True:
-        horas = solicitar_flotante("Cantidad de horas trabajadas: ")
-        if validar_horas_trabajo(horas):
-            break
-
+    hora_inicio = solicitar_texto("Hora Inicio (HH:MM): ")
+    hora_termino = solicitar_texto("Hora Término (HH:MM): ")
     descripcion = solicitar_texto("Descripción de tareas realizadas: ", min_len=5)
 
-    # AQUÍ LLAMAS A TU DTO:
-    # RegistroTiempoDTO().registrar_tiempo(...)
-    print(f"-> Registro de {horas} hrs en proyecto '{id_proy}' validado correctamente.")
+    mensaje = RegistroTiempoDTO().registrarTiempo(
+        id_emp, id_proy, fecha, hora_inicio, hora_termino, descripcion
+    )
+    print(f"-> {mensaje}")
 
-
-# --- INFORME (ADMINISTRADOR) ---
-def validate_generar_informe():
+def validate_generar_informe(usuario_actual):
     print("\n------------------------------")
     print(" Generar e Imprimir Informe ")
     print("------------------------------")
-    criterios = solicitar_texto("Criterios de filtrado (Ej: Depto=IT): ")
+    if usuario_actual is None or usuario_actual.getRol() != "ADMIN":
+        print("Error: Solo los administradores pueden generar informes.")
+        return
+
+    id_proy = solicitar_entero("ID del Proyecto a consultar: ")
+    desde_str = solicitar_fecha("Fecha Desde (YYYY-MM-DD): ")
+    hasta_str = solicitar_fecha("Fecha Hasta (YYYY-MM-DD): ")
     
     while True:
-        formato = solicitar_texto("Formato de salida (PDF/CSV/EXCEL): ").upper()
+        formato = solicitar_texto("Formato de salida (PDF/CSV/EXCEL/TXT): ").upper()
         if validar_formato_informe(formato):
             break
-        print("Error: Formato no soportado. Elija PDF, CSV o EXCEL.")
+        print("Error: Formato no soportado.")
 
-    # AQUÍ LLAMAS A TU DTO / DAO:
-    # InformeDTO().generar_informe(...)
-    print(f"-> Solicitud de informe en formato '{formato}' enviada.")
+    desde = datetime.strptime(desde_str, "%Y-%m-%d").date()
+    hasta = datetime.strptime(hasta_str, "%Y-%m-%d").date()
+
+    criterios = {"idProyecto": id_proy, "desde": desde, "hasta": hasta}
+
+    informe = InformeDTO().generarInforme(usuario_actual, criterios, formato)
+    if informe:
+        print("\n=== INFORME GENERADO EXITOSAMENTE ===")
+        print(informe.getContenido())
+    else:
+        print("-> No se pudo generar el informe. Verifique permisos o existencia del proyecto.")
 
 
 # ==========================================
@@ -203,15 +207,13 @@ def menu_principal():
     print("6. Salir")
 
 def valida_opc(max_opc: int) -> int:
-    """Valida la selección del menú."""
     while True:
         opc = solicitar_entero("Seleccione una opción: ")
         if 1 <= opc <= max_opc:
             return opc
         print(f"Opción no válida. Ingrese un valor entre 1 y {max_opc}.")
 
-def inicial():
-    """Bucle principal de la aplicación."""
+def inicial(usuario_actual=None):
     while True:
         menu_principal()
         opc = valida_opc(6)
@@ -219,8 +221,10 @@ def inicial():
         if opc == 1:
             print("\n1. Login | 2. Crear Empleado")
             sub_opc = valida_opc(2)
-            if sub_opc == 1: validate_login()
-            elif sub_opc == 2: validate_crear_empleado()
+            if sub_opc == 1: 
+                usuario_actual = validate_login()
+            elif sub_opc == 2: 
+                validate_crear_empleado()
 
         elif opc == 2:
             print("\n1. Crear Depto | 2. Asignar Empleado")
@@ -235,7 +239,7 @@ def inicial():
             validate_registrar_tiempo()
 
         elif opc == 5:
-            validate_generar_informe()
+            validate_generar_informe(usuario_actual)
 
         elif opc == 6:
             if solicitar_confirmacion("¿Está seguro que desea salir del sistema?"):
