@@ -40,7 +40,7 @@ create TABLE registroTiempo (
     horaInicio TIME NOT NULL,
     horaTermino TIME NOT NULL,
     descripTareas VARCHAR(200),
-    idEmpleado INT NOT NULL,
+    idEmple INT NOT NULL,
     idProyecto INT NOT NULL,
     FOREIGN KEY (idEmple) REFERENCES empleado(idEmple),
     FOREIGN KEY (idProyecto) REFERENCES proyecto(idProyecto)
