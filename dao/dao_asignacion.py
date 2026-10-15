@@ -4,7 +4,7 @@ import traceback
 class DaoAsignacion:
     def __init__(self) -> None:
         try:
-            self.__conn = conn.Conex("localhost", "root", "", "ecotech_bd") # Cambiar nom BD
+            self.__conn = conn.Conex("localhost", "root", "", "ecotech") 
         except Exception as ex:
             print(ex)
 
@@ -84,7 +84,6 @@ class DaoAsignacion:
         mensaje = ""
         try:
             cursor = objetoConex.getConex().cursor()
-            # CAMBIO: Ahora pasamos los dos ID en la tupla de execute.
             cursor.execute(sql, (asign.getIdEmple(), asign.getIdProyecto()))
             objetoConex.getConex().commit()
             filas = cursor.rowcount

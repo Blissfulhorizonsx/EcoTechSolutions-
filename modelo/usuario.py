@@ -15,6 +15,8 @@ class Usuario:
         return self.__nombreUsuario
     def getContrasena(self):
         return self.__contrasena
+    def getContrasenaHash(self):
+        return self.__contrasena
     def getRol(self):
         return self.__rol
 
@@ -23,6 +25,8 @@ class Usuario:
     def setNombreUsuario(self, nombreUsuario):
         self.__nombreUsuario = nombreUsuario
     def setContrasena(self, contrasena):
+        self.__contrasena = contrasena
+    def getContresenaHash(self, contrasena):
         self.__contrasena = contrasena
     def setRol(self, rol):
         self.__rol = rol

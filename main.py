@@ -1,22 +1,29 @@
-# CAMBIO: Se importa'inicial' en lugar de 'menu_principal'
-from vista.validaciones import inicial, validate_login
+from vista.validaciones import inicial, validate_login, banner
 
-##### login
-intentos = 1
-print("Sistema POO")
-while intentos <= 3:
-    try:
-        usuario = validate_login()
+MAX_INTENTOS = 3
+
+
+def main() -> None:
+    banner("ECOTECH SOLUTIONS", "Gestión de tiempos y proyectos")
+
+    for intento in range(1, MAX_INTENTOS + 1):
+        try:
+            usuario = validate_login()
+        except Exception as ex:
+            print(f"  [!] Error del sistema: {ex}")
+            usuario = None
+
         if usuario is not None:
-            print(f"Bienvenido(a) Sr(a). : {usuario.getNombreUsuario()}")
-            
-            # CAMBIO 2: Llamar a inicial(usuario) para arrancar el bucle del sistema
+            print(f"\n  Bienvenido(a), {usuario.getNombreUsuario()}  [{usuario.getRol()}]")
             inicial(usuario)
-            break
-        else:
-            print("usuario o contraseña incorrecta")
-            intentos += 1
-    except:
-        print("intentar nuevamente")
-if intentos == 4:
-    print("contraseña bloqueada")
+            return
+
+        restantes = MAX_INTENTOS - intento
+        if restantes > 0:
+            print(f"  [!] Usuario o contraseña incorrectos. Intentos restantes: {restantes}\n")
+
+    print("\n  [X] Acceso bloqueado: demasiados intentos fallidos.")
+
+
+if __name__ == "__main__":
+    main()

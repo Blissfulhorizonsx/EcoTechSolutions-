@@ -4,7 +4,7 @@ import traceback
 class DaoRegistroTiempo:
     def __init__(self) -> None:
         try:
-            self.__conn = conn.Conex("localhost", "root", "", "ecotech_bd") # cambiar nombre bd
+            self.__conn = conn.Conex("localhost", "root", "", "ecotech") # cambiar nombre bd
         except Exception as ex:
             print(ex)
 

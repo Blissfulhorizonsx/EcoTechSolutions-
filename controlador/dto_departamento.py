@@ -1,5 +1,5 @@
 from modelo.departamento import Departamento
-from modelo.proyecto import Empleado
+from modelo.empleado import Empleado
 from dao.dao_departamento import DaoDepartamento
 from seguridad.validador_seguridad import ValidadorSeguridad
 

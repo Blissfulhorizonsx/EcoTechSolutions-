@@ -4,7 +4,7 @@ import traceback
 class DaoDepartamento:
     def __init__(self) -> None:
         try:
-            self.__conn = Conex("localhost", "root", "", "ecotech_bd") # Cambiar ecotech_bd por la bd 
+            self.__conn = Conex("localhost", "root", "", "ecotech")
         except Exception as ex:
             print(ex)
 

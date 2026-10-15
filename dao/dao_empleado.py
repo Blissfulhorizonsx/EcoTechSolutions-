@@ -4,7 +4,7 @@ import traceback
 class DaoEmpleado:
     def __init__(self) -> None:
         try:
-            self.__conn = conn.Conex("localhost", "root", "", "ecotech_bd") # Cambiar por bd
+            self.__conn = conn.Conex("localhost", "root", "", "ecotech") # Cambiar por bd
         except Exception as ex:
             print(ex)
 
@@ -34,6 +34,20 @@ class DaoEmpleado:
             resultado = cursor.fetchone()
         except Exception as ex:
             print(traceback.print_exc())
+        finally:
+            objetoConex.closeConex()
+        return resultado
+    
+    def buscarPorUsuario(self, emp: object) -> dict:
+        sql = "SELECT * FROM empleado WHERE idUsuario = %s"
+        resultado = None
+        objetoConex = self.getConex()
+        try:
+            cursor = objetoConex.getConex().cursor()
+            cursor.execute(sql, (emp.getIdUsuario(),))
+            resultado = cursor.fetchone()
+        except Exception as ex:
+            traceback.print_exc()
         finally:
             objetoConex.closeConex()
         return resultado
