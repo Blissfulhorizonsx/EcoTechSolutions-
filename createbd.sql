@@ -31,7 +31,7 @@ create TABLE proyecto (
     idProyecto INT AUTO_INCREMENT PRIMARY KEY,
     nombProyecto VARCHAR(100) NOT NULL UNIQUE,
     descripProyecto VARCHAR(200),
-    fchInicio DATE,
+    fchInicio DATE
 );
 
 create TABLE registroTiempo (
