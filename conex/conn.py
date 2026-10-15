@@ -1,18 +1,21 @@
 import pymysql as conn
 
+
 class Conex:
 
-    def __init__(self,  host: str, user: str, passwd: str, database: str)-> None:
+    def __init__(self, host: str = "localhost", user: str = "root",
+                 passwd: str = "", database: str = "ecotech") -> None:
+        self.__myconn = None
         try:
-            self.__myconn = conn.connect(host=host, user=user, passwd=passwd, database=database,cursorclass=conn.cursors.DictCursor,)
-
+            self.__myconn = conn.connect(host=host, user=user, passwd=passwd,
+                                         database=database,
+                                         cursorclass=conn.cursors.DictCursor)
         except Exception as ex:
-            print(ex)
-            self.__myconn.rollback()
-            return None
+            print("Error de conexión:", ex)
 
     def closeConex(self) -> None:
-        self.__myconn.close()
+        if self.__myconn is not None:
+            self.__myconn.close()
 
-    def getConex(self)-> conn.Connection:
+    def getConex(self) -> conn.Connection:
         return self.__myconn
