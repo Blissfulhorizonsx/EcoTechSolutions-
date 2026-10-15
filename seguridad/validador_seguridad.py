@@ -4,8 +4,6 @@ from cryptography.fernet import Fernet # pip install cryptography
 
 
 class ValidadorSeguridad:
-    # La clave debe ser siempre la misma. Si cambia, no podrás descifrar
-    # los salarios ya guardados. Genérala UNA vez y guárdala fuera del código.
     __clave = None
 
     def __init__(self):
@@ -25,9 +23,6 @@ class ValidadorSeguridad:
             return clave
 
     def sanitizar_entrada(self, dato: str) -> str:
-        """Limpia texto libre: quita espacios sobrantes, caracteres de control
-        y escapa HTML. La defensa real contra inyección SQL son las consultas
-        parametrizadas (%s) en los DAO; esto es una capa adicional."""
         if dato is None:
             return ""
         dato = str(dato).strip()
