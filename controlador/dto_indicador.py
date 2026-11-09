@@ -1,5 +1,5 @@
 from datetime import timedelta
-from modelo.indicador import indicador
+from modelo.indicador import Indicador
 from dao.dao_indicador import IndicadorDAO
 from controlador.consultar_indicadores import consultar_indicador, codigos
 
@@ -15,8 +15,8 @@ class IndicadorDTO:
     def __codigos(self, codigo) -> list:
         return codigos if codigo is None else [codigo]
 
-    def __armar(self, r) -> indicador:
-        return indicador(r["codigo"], r["fecha"], float(r["valor"]), r["autor"],
+    def __armar(self, r) -> Indicador:
+        return Indicador(r["codigo"], r["fecha"], float(r["valor"]), r["autor"],
                          r["idUsuario"], r["idIndicador"])
 
     def actualizar(self, usuario, codigo: str = None, fecha: str = None) -> str:
@@ -33,7 +33,7 @@ class IndicadorDTO:
                 continue
             lista = []
             for s in datos["serie"]:
-                lista.append(indicador(cod, s["fecha"], s["valor"], datos["autor"], usuario.getIdUsuario()))
+                lista.append(Indicador(cod, s["fecha"], s["valor"], datos["autor"], usuario.getIdUsuario()))
             resultado = IndicadorDAO().guardarIndicadores(lista)
             mensajes.append(f"{cod.upper()}: {len(lista)} valores desde {datos['autor']}. {resultado}")
         return "\n".join(mensajes)
