@@ -1,9 +1,7 @@
-
-
 create TABLE usuario (
     idUsuario INT AUTO_INCREMENT primary key,
     nombreUsuario VARCHAR(100) NOT NULL UNIQUE,
-    contrasenaHash VARCHAR (255) NOT NULL,
+    contrasenaHash VARCHAR(255) NOT NULL,
     rol VARCHAR(20) NOT NULL DEFAULT 'EMPLEADO'
 );
 
@@ -23,8 +21,8 @@ create TABLE empleado (
     fchContrato DATE,
     salarioCifrado VARCHAR(255),
     idDepart INT,
-    FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario),
-    FOREIGN KEY (idDepart) REFERENCES departamento(idDepart)
+    FOREIGN KEY (idUsuario) REFERENCES usuario (idUsuario),
+    FOREIGN KEY (idDepart) REFERENCES departamento (idDepart)
 );
 
 create TABLE proyecto (
@@ -42,8 +40,8 @@ create TABLE registroTiempo (
     descripTareas VARCHAR(200),
     idEmple INT NOT NULL,
     idProyecto INT NOT NULL,
-    FOREIGN KEY (idEmple) REFERENCES empleado(idEmple),
-    FOREIGN KEY (idProyecto) REFERENCES proyecto(idProyecto)
+    FOREIGN KEY (idEmple) REFERENCES empleado (idEmple),
+    FOREIGN KEY (idProyecto) REFERENCES proyecto (idProyecto)
 );
 
 create TABLE asignacion (
@@ -52,8 +50,8 @@ create TABLE asignacion (
     idEmple INT NOT NULL,
     idProyecto INT NOT NULL,
     UNIQUE (idEmple, idProyecto),
-    FOREIGN KEY (idEmple) REFERENCES empleado(idEmple),
-    FOREIGN KEY (idProyecto) REFERENCES proyecto(idProyecto)
+    FOREIGN KEY (idEmple) REFERENCES empleado (idEmple),
+    FOREIGN KEY (idProyecto) REFERENCES proyecto (idProyecto)
 );
 
 create TABLE informe (
@@ -62,5 +60,17 @@ create TABLE informe (
     formato VARCHAR(20),
     contenido TEXT,
     idUsuario INT NOT NULL,
-    FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario)
+    FOREIGN KEY (idUsuario) REFERENCES usuario (idUsuario)
+);
+
+CREATE TABLE indicadores (
+    idIndicador INT AUTO_INCREMENT PRIMARY KEY,
+    idUsuario INT NOT NULL,
+    autor VARCHAR(30) NOT NULL,
+    codigo VARCHAR(20) NOT NULL,
+    fecha DATE NOT NULL,
+    valor DECIMAL(14, 4) NOT NULL,
+    fchConsulta TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    UNIQUE (codigo, fecha),
+    FOREIGN KEY (idUsuario) REFERENCES usuario (idUsuario)
 );

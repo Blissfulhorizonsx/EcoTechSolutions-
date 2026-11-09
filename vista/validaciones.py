@@ -9,6 +9,7 @@ from controlador.dto_proyecto import ProyectoDTO
 from controlador.dto_asignacion import AsignacionDTO
 from controlador.dto_registrotiempo import RegistroTiempoDTO
 from controlador.dto_informe import InformeDTO
+from controlador.dto_indicador import IndicadorDTO
 
 ANCHO = 60
 
@@ -192,8 +193,8 @@ def validate_crear_usuario():
         if len(clave) >= 8:
             break
         error("La contraseña debe tener al menos 8 caracteres.")
-    mostrar_menu("ROL", ["EMPLEADO", "ADMIN"])
-    rol = "EMPLEADO" if valida_opc(2) == 1 else "ADMIN"
+    mostrar_menu("ROL", ["EMPLEADO", "ADMIN", "RRHH"])
+    rol = ["EMPLEADO", "ADMIN", "RRHH"][valida_opc(3) - 1]
     resultado(UsuarioDTO().agregarUsuario(nombre, clave, rol))
 
 
@@ -343,11 +344,14 @@ def menu_tiempo(usuario):
 
 def inicial(usuario) -> None:
     es_admin = usuario.getRol() == "ADMIN"
+    es_rrhh = usuario.getRol() == "RRHH"
 
     while True:
         if es_admin:
             opciones = ["Empleados y usuarios", "Departamentos", "Proyectos",
                         "Registro de tiempo", "Informes", "Salir"]
+        elif es_rrhh:
+            opciones = ["Indicadores economicos", "Registro de tiempo", "Salir"]
         else:
             opciones = ["Registro de tiempo", "Salir"]
 
@@ -360,6 +364,8 @@ def inicial(usuario) -> None:
             menu_departamentos()
         elif elegida == "Proyectos":
             menu_proyectos()
+        elif elegida == "Indicadores economicos":
+            menu_indicadores(usuario)
         elif elegida == "Registro de tiempo":
             menu_tiempo(usuario)
         elif elegida == "Informes":
@@ -369,3 +375,85 @@ def inicial(usuario) -> None:
             if solicitar_confirmacion("¿Está seguro que desea salir del sistema?"):
                 banner("SESIÓN FINALIZADA", "¡Hasta pronto!")
                 break
+
+
+
+##### parte de los indicadores
+
+codigos_menu = [("UF", "uf"), ("Dólar", "dolar"), ("Euro", "euro"), ("UTM", "utm")]
+nombres = {codigo: nombre for nombre, codigo in codigos_menu}
+
+def pedir_fecha(mensaje: str):
+    while True:
+        texto = input(mensaje).strip()
+        if not texto:
+            return datetime.now().date()
+        try:
+            return datetime.strptime(texto, "%d-%m-%Y").date()
+        except ValueError:
+            error("Formato inválido. Ejemplo: 15-01-2026")
+
+def formato_valor(valor: float) -> str:
+    return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def elegir_indicador():
+    mostrar_menu("INDICADOR", [nombre for nombre, _ in codigos_menu] + ["Todos"])
+    opc = valida_opc(len(codigos_menu) + 1)
+    if opc == len(codigos_menu) + 1:
+        return None
+    return codigos_menu[opc - 1][1]
+
+def mostrar_indicadores(lista: list) -> None:
+    filas = []
+    for i in lista:
+        filas.append([i.getFecha().strftime("%d-%m-%Y"),
+                      nombres.get(i.getCodigo(), i.getCodigo().upper()),
+                      formato_valor(i.getValor()), i.getAutor()])
+    tabla(["Fecha", "Indicador", "Valor", "Fuente"], filas)
+
+def validate_actualizar_indicadores(usuario) -> None:
+    encabezado("ACTUALIZAR INDICADORES DESDE LA API")
+    codigo = elegir_indicador()
+    print("\n  Consultando API...")
+    for linea in IndicadorDTO().actualizar(usuario, codigo).splitlines():
+        print("  " + linea)
+
+def validate_consultar_fecha(usuario) -> None:
+    encabezado("CONSULTAR INDICADOR POR FECHA")
+    codigo = elegir_indicador()
+    fecha = pedir_fecha("  Fecha (dd-mm-aaaa) o Enter para hoy: ")
+    mostrar_indicadores(IndicadorDTO().consultarPorFecha(usuario, codigo, fecha))
+
+def validate_consultar_rango(usuario) -> None:
+    encabezado("CONSULTAR INDICADOR POR RANGO DE FECHAS")
+    codigo = elegir_indicador()
+    desde = pedir_fecha("  Desde (dd-mm-aaaa) o Enter para hoy: ")
+    hasta = pedir_fecha("  Hasta (dd-mm-aaaa) o Enter para hoy: ")
+    if hasta < desde:
+        error("La fecha final no puede ser anterior a la inicial.")
+        return
+    lista = IndicadorDTO().consultarPorRango(usuario, codigo, desde, hasta)
+    mostrar_indicadores(lista)
+    if not lista and (hasta - desde).days >= IndicadorDTO.limite_dias:
+        print(f"\n  Rango mayor a {IndicadorDTO.limite_dias} días: use un rango menor para buscarlo en la API.")
+
+def menu_indicadores(usuario) -> None:
+    if usuario.getRol() != "RRHH":
+        error("Acceso denegado: solo el Gerente de Recursos Humanos.")
+        return
+    while True:
+        mostrar_menu("INDICADORES ECONÓMICOS", ["Actualizar datos desde la API", "Consultar por fecha", "Consultar por rango de fechas", "Volver"])
+        opc = valida_opc(4)
+        if opc == 4:
+            return
+        try:
+            if opc == 1:
+                validate_actualizar_indicadores(usuario)
+            elif opc == 2:
+                validate_consultar_fecha(usuario)
+            else:
+                validate_consultar_rango(usuario)
+        except PermissionError as ex:
+            error(str(ex))
+            return
+        pausa()
