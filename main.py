@@ -14,7 +14,6 @@ def main() -> None:
             print("\n  [!] Interrupción detectada. El sistema no puede cerrarse con Ctrl+C.\n")
             continue
         except Exception:
-            print("  [!] Error interno del sistema.")
             usuario = None
 
         if usuario is not None:
