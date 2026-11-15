@@ -10,6 +10,7 @@ from controlador.dto_asignacion import AsignacionDTO
 from controlador.dto_registrotiempo import RegistroTiempoDTO
 from controlador.dto_informe import InformeDTO
 from controlador.dto_indicador import IndicadorDTO
+from controlador.dto_recuperacion import RecuperacionDTO
 
 ANCHO = 60
 
@@ -138,6 +139,36 @@ def validate_login():
     clave = getpass.getpass("  Contraseña : ")
     return UsuarioDTO().validarLogin(username, clave)
 
+def validate_recuperar_clave() -> None:
+    encabezado("RECUPERAR CONTRASEÑA")
+    username = solicitar_texto("  Usuario : ")
+    dto = RecuperacionDTO()
+
+    print("\n  Procesando...")
+    ok(dto.solicitarCodigo(username))
+    print("  Revise su correo (el código vence en "
+          f"{RecuperacionDTO.minutos_validez} minutos).")
+
+    if not solicitar_confirmacion("¿Ya tiene el código?"):
+        return
+
+    while True:
+        clave = getpass.getpass(f"  Nueva contraseña (mín. {RecuperacionDTO.min_largo_clave} caracteres): ")
+        if len(clave) < RecuperacionDTO.min_largo_clave:
+            error(f"La contraseña debe tener al menos {RecuperacionDTO.min_largo_clave} caracteres.")
+        elif clave != getpass.getpass("  Repita la contraseña : "):
+            error("Las contraseñas no coinciden.")
+        else:
+            break
+
+    for _ in range(3):
+        codigo = solicitar_texto("  Código de 6 dígitos : ")
+        exito, mensaje = dto.restablecer(username, codigo, clave)
+        if exito:
+            ok(mensaje)
+            return
+        error(mensaje)
+    error("Demasiados intentos. Vuelva a solicitar un código.")
 
 
 def validate_listar_empleados():
