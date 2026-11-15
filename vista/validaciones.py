@@ -348,34 +348,38 @@ def inicial(usuario) -> None:
     es_rrhh = usuario.getRol() == "RRHH"
 
     while True:
-        if es_admin:
-            opciones = ["Empleados y usuarios", "Departamentos", "Proyectos",
-                        "Registro de tiempo", "Informes", "Salir"]
-        elif es_rrhh:
-            opciones = ["Indicadores economicos", "Registro de tiempo", "Salir"]
-        else:
-            opciones = ["Registro de tiempo", "Salir"]
+        try:
+            if es_admin:
+                opciones = ["Empleados y usuarios", "Departamentos", "Proyectos",
+                            "Registro de tiempo", "Informes", "Salir"]
+            elif es_rrhh:
+                opciones = ["Indicadores economicos", "Registro de tiempo", "Salir"]
+            else:
+                opciones = ["Registro de tiempo", "Salir"]
 
-        mostrar_menu(f"MENÚ PRINCIPAL  |  {usuario.getNombreUsuario()} ({usuario.getRol()})", opciones)
-        elegida = opciones[valida_opc(len(opciones)) - 1]
+            mostrar_menu(f"MENÚ PRINCIPAL  |  {usuario.getNombreUsuario()} ({usuario.getRol()})", opciones)
+            elegida = opciones[valida_opc(len(opciones)) - 1]
 
-        if elegida == "Empleados y usuarios":
-            menu_empleados()
-        elif elegida == "Departamentos":
-            menu_departamentos()
-        elif elegida == "Proyectos":
-            menu_proyectos()
-        elif elegida == "Indicadores economicos":
-            menu_indicadores(usuario)
-        elif elegida == "Registro de tiempo":
-            menu_tiempo(usuario)
-        elif elegida == "Informes":
-            validate_generar_informe(usuario)
-            pausa()
-        elif elegida == "Salir":
-            if solicitar_confirmacion("¿Está seguro que desea salir del sistema?"):
-                banner("SESIÓN FINALIZADA", "¡Hasta pronto!")
-                break
+            if elegida == "Empleados y usuarios":
+                menu_empleados()
+            elif elegida == "Departamentos":
+                menu_departamentos()
+            elif elegida == "Proyectos":
+                menu_proyectos()
+            elif elegida == "Indicadores economicos":
+                menu_indicadores(usuario)
+            elif elegida == "Registro de tiempo":
+                menu_tiempo(usuario)
+            elif elegida == "Informes":
+                validate_generar_informe(usuario)
+                pausa()
+            elif elegida == "Salir":
+                if solicitar_confirmacion("¿Está seguro que desea salir del sistema?"):
+                    banner("SESIÓN FINALIZADA", "¡Hasta pronto!")
+                    break
+        except KeyboardInterrupt:
+            print()
+            error("Operación cancelada. Utilice la opción 'Salir' del menú para cerrar el sistema.")
 
 
 
@@ -497,17 +501,17 @@ def menu_indicadores(usuario) -> None:
         error("Acceso denegado: solo el Gerente de Recursos Humanos.")
         return
     while True:
-        mostrar_menu("INDICADORES ECONÓMICOS", [
-            "Actualizar datos desde la API",
-            "Consultar por fecha",
-            "Consultar por rango de fechas",
-            "Calcular pago en moneda internacional",
-            "Volver"
-        ])
-        opc = valida_opc(5)
-        if opc == 5:
-            return
         try:
+            mostrar_menu("INDICADORES ECONÓMICOS", [
+                "Actualizar datos desde la API",
+                "Consultar por fecha",
+                "Consultar por rango de fechas",
+                "Calcular pago en moneda internacional",
+                "Volver"
+            ])
+            opc = valida_opc(5)
+            if opc == 5:
+                return
             if opc == 1:
                 validate_actualizar_indicadores(usuario)
             elif opc == 2:
@@ -516,11 +520,16 @@ def menu_indicadores(usuario) -> None:
                 validate_consultar_rango(usuario)
             else:
                 validate_calcular_pago_internacional(usuario)
+            pausa()
+        except KeyboardInterrupt:
+            print()
+            error("Operación cancelada. Use 'Volver' para regresar al menú principal.")
         except PermissionError as ex:
             error(str(ex))
             return
         except (ValueError, ConnectionError) as ex:
             error(str(ex))
+            pausa()
         except Exception:
             error("No fue posible completar la operación con el servicio externo.")
-        pausa()
+            pausa()

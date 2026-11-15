@@ -6,11 +6,15 @@ MAX_INTENTOS = 3
 def main() -> None:
     banner("ECOTECH SOLUTIONS", "Gestión de tiempos y proyectos")
 
-    for intento in range(1, MAX_INTENTOS + 1):
+    intento = 0
+    while intento < MAX_INTENTOS:
         try:
             usuario = validate_login()
-        except Exception as ex:
-            print(f"  [!] Error del sistema: {ex}")
+        except KeyboardInterrupt:
+            print("\n  [!] Interrupción detectada. El sistema no puede cerrarse con Ctrl+C.\n")
+            continue
+        except Exception:
+            print("  [!] Error interno del sistema.")
             usuario = None
 
         if usuario is not None:
@@ -18,6 +22,7 @@ def main() -> None:
             inicial(usuario)
             return
 
+        intento += 1
         restantes = MAX_INTENTOS - intento
         if restantes > 0:
             print(f"  [!] Usuario o contraseña incorrectos. Intentos restantes: {restantes}\n")
