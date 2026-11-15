@@ -1,12 +1,9 @@
 from conex import conn
-import traceback
+
 
 class DaoEmpleado:
     def __init__(self) -> None:
-        try:
-            self.__conn = conn.Conex("localhost", "root", "", "ecotech") # Cambiar por bd
-        except Exception as ex:
-            print(ex)
+        self.__conn = conn.Conex("localhost", "root", "", "ecotech")
 
     def getConex(self) -> conn.Conex:
         return self.__conn
@@ -18,8 +15,8 @@ class DaoEmpleado:
             cursor = objetoConex.getConex().cursor()
             cursor.execute("SELECT idEmple, idUsuario, nombEmplea, direccEmple, numEmple, mailEmple, fchContrato, salarioCifrado, idDepart FROM empleado")
             result = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return result
@@ -32,12 +29,12 @@ class DaoEmpleado:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (emple.getIdEmple(),))
             resultado = cursor.fetchone()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
-    
+
     def buscarPorUsuario(self, emp: object) -> dict:
         sql = "SELECT * FROM empleado WHERE idUsuario = %s"
         resultado = None
@@ -46,8 +43,8 @@ class DaoEmpleado:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (emp.getIdUsuario(),))
             resultado = cursor.fetchone()
-        except Exception as ex:
-            traceback.print_exc()
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
@@ -65,8 +62,7 @@ class DaoEmpleado:
                 mensaje = "Datos agregados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -85,8 +81,7 @@ class DaoEmpleado:
                 mensaje = "Datos modificados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -105,8 +100,7 @@ class DaoEmpleado:
                 mensaje = "Empleado eliminado satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -125,8 +119,7 @@ class DaoEmpleado:
                 mensaje = "Departamento asignado satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()

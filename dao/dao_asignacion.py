@@ -1,12 +1,9 @@
 from conex import conn
-import traceback
+
 
 class DaoAsignacion:
     def __init__(self) -> None:
-        try:
-            self.__conn = conn.Conex("localhost", "root", "", "ecotech") 
-        except Exception as ex:
-            print(ex)
+        self.__conn = conn.Conex("localhost", "root", "", "ecotech")
 
     def getConex(self) -> conn.Conex:
         return self.__conn
@@ -18,8 +15,8 @@ class DaoAsignacion:
             cursor = objetoConex.getConex().cursor()
             cursor.execute("SELECT idAsign, fechaAsignacion, idEmple, idProyecto FROM asignacion")
             result = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return result
@@ -32,8 +29,8 @@ class DaoAsignacion:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (asign.getIdAsign(),))
             resultado = cursor.fetchone()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
@@ -51,8 +48,7 @@ class DaoAsignacion:
                 mensaje = "Datos agregados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -71,8 +67,7 @@ class DaoAsignacion:
                 mensaje = "Datos modificados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -91,13 +86,12 @@ class DaoAsignacion:
                 mensaje = "Asignación eliminada satisfactoriamente"
             else:
                 mensaje = "No se encontraron registros para eliminar"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
         return mensaje
-    
+
     def listarPorEmpleado(self, asign: object) -> tuple:
         sql = "SELECT idAsign, fechaAsignacion, idEmple, idProyecto FROM asignacion WHERE idEmple = %s"
         resultado = None
@@ -106,8 +100,8 @@ class DaoAsignacion:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (asign.getIdEmple(),))
             resultado = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
@@ -120,8 +114,8 @@ class DaoAsignacion:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (asign.getIdProyecto(),))
             resultado = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado

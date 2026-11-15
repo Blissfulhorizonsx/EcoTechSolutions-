@@ -1,12 +1,9 @@
 from conex.conn import Conex
-import traceback
+
 
 class DaoDepartamento:
     def __init__(self) -> None:
-        try:
-            self.__conn = Conex("localhost", "root", "", "ecotech")
-        except Exception as ex:
-            print(ex)
+        self.__conn = Conex("localhost", "root", "", "ecotech")
 
     def getConex(self) -> Conex:
         return self.__conn
@@ -18,8 +15,8 @@ class DaoDepartamento:
             cursor = objetoConex.getConex().cursor()
             cursor.execute("SELECT idDepart, nombDepart, gerentDepart FROM departamento")
             result = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return result
@@ -32,8 +29,8 @@ class DaoDepartamento:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (depart.getIdDepart(),))
             resultado = cursor.fetchone()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
@@ -51,8 +48,7 @@ class DaoDepartamento:
                 mensaje = "Datos agregados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -71,8 +67,7 @@ class DaoDepartamento:
                 mensaje = "Datos modificados satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -91,8 +86,7 @@ class DaoDepartamento:
                 mensaje = "Departamento eliminado satisfactoriamente"
             else:
                 mensaje = "No se realizaron cambios"
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
             mensaje = "Problemas con la base de datos..vuelva a intentarlo"
         finally:
             objetoConex.closeConex()
@@ -106,8 +100,8 @@ class DaoDepartamento:
             cursor = objetoConex.getConex().cursor()
             cursor.execute(sql, (depart.getIdDepart(),))
             resultado = cursor.fetchall()
-        except Exception as ex:
-            print(traceback.print_exc())
+        except Exception:
+            pass
         finally:
             objetoConex.closeConex()
         return resultado
