@@ -17,11 +17,11 @@ class Conex:
             elif codigo_error == 1049:
                 mensaje_error = "La base de datos no existe."
             elif codigo_error == 2003:
-                mensaje_error = "No se pudo conetcar con la base de datos, verifique la conexión"
+                mensaje_error = "No se pudo conectar con la base de datos, verifique la conexión."
             else:
-                mensaje_error = f"Error ({codigo_error}): {ex}"
+                mensaje_error = "No se pudo establecer conexión con la base de datos."
 
-            raise ConnectionError(mensaje_error)            
+            raise ConnectionError(mensaje_error)
 
     def closeConex(self) -> None:
         if self.__myconn is not None:

@@ -18,8 +18,8 @@ def iniciar_sesion() -> None:
         except KeyboardInterrupt:
             print("\n  [!] Interrupción detectada. El sistema no puede cerrarse con Ctrl+C.\n")
             continue
-        except Exception as e:
-            print(f"\n  [!] Error al validar credenciales: {e}\n")
+        except Exception:
+            print("\n  [!] No fue posible validar las credenciales en este momento.\n")
             usuario = None
 
         if usuario is not None:
@@ -53,8 +53,8 @@ def main() -> None:
 
         except KeyboardInterrupt:
             print("\n  [!] Interrupción detectada. El sistema no puede cerrarse con Ctrl+C.\n")
-        except Exception as e:
-            print(f"\n  [!] Error interno del sistema: {e}\n")
+        except Exception:
+            print("\n  [!] Ocurrió un error inesperado en el sistema.\n")
 
 
 if __name__ == "__main__":

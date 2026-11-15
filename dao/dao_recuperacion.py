@@ -1,16 +1,10 @@
 from conex.conn import Conex
-import traceback
 
 
 class DaoRecuperacion:
-    """Crear una instancia nueva por cada llamada, igual que el resto de los DAO
-    (cada método cierra la conexión al terminar)."""
 
     def __init__(self) -> None:
-        try:
-            self.__conn = Conex("localhost", "root", "", "ecotech")
-        except Exception as ex:
-            print(ex)
+        self.__conn = Conex("localhost", "root", "", "ecotech")
 
     def getConex(self) -> Conex:
         return self.__conn
@@ -23,7 +17,6 @@ class DaoRecuperacion:
             objetoConex.getConex().commit()
             return cursor.rowcount
         except Exception:
-            traceback.print_exc()
             return None
         finally:
             objetoConex.closeConex()
@@ -35,7 +28,6 @@ class DaoRecuperacion:
             cursor.execute(sql, parametros)
             return cursor.fetchone()
         except Exception:
-            traceback.print_exc()
             return None
         finally:
             objetoConex.closeConex()
