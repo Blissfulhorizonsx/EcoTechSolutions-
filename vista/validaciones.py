@@ -143,8 +143,9 @@ def validate_login():
 def validate_listar_empleados():
     encabezado("LISTADO DE EMPLEADOS")
     lista = EmpleadoDTO().listarEmpleados()
-    tabla(["ID", "Nombre", "Correo", "Depto"],
-          [[e.getIdEmple(), e.getNombEmplea(), e.getMailEmple(), e.getIdDepart() or "-"]
+    tabla(["ID", "Nombre", "Correo", "Teléfono", "Depto"],
+          [[e.getIdEmple(), e.getNombEmplea(), e.obtenerCorreoDescifrado(),
+            e.obtenerTelefonoDescifrado(), e.getIdDepart() or "-"]
            for e in lista])
 
 def validate_crear_empleado():
@@ -383,6 +384,7 @@ def inicial(usuario) -> None:
 codigos_menu = [("UF", "uf"), ("Dólar", "dolar"), ("Euro", "euro"), ("UTM", "utm")]
 nombres = {codigo: nombre for nombre, codigo in codigos_menu}
 
+
 def pedir_fecha(mensaje: str):
     while True:
         texto = input(mensaje).strip()
@@ -393,8 +395,10 @@ def pedir_fecha(mensaje: str):
         except ValueError:
             error("Formato inválido. Ejemplo: 15-01-2026")
 
+
 def formato_valor(valor: float) -> str:
     return f"{valor:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
 
 def elegir_indicador():
     mostrar_menu("INDICADOR", [nombre for nombre, _ in codigos_menu] + ["Todos"])
@@ -403,26 +407,36 @@ def elegir_indicador():
         return None
     return codigos_menu[opc - 1][1]
 
+
 def mostrar_indicadores(lista: list) -> None:
     filas = []
     for i in lista:
-        filas.append([i.getFecha().strftime("%d-%m-%Y"),
+        fecha_fmt = i.getFecha().strftime("%d-%m-%Y") if hasattr(i.getFecha(), "strftime") else str(i.getFecha())
+        filas.append([fecha_fmt,
                       nombres.get(i.getCodigo(), i.getCodigo().upper()),
                       formato_valor(i.getValor()), i.getAutor()])
     tabla(["Fecha", "Indicador", "Valor", "Fuente"], filas)
 
+
 def validate_actualizar_indicadores(usuario) -> None:
     encabezado("ACTUALIZAR INDICADORES DESDE LA API")
     codigo = elegir_indicador()
-    print("\n  Consultando API...")
-    for linea in IndicadorDTO().actualizar(usuario, codigo).splitlines():
-        print("  " + linea)
+    print("\n  Consultando servicio externo...")
+    respuesta = IndicadorDTO().actualizar(usuario, codigo)
+    for linea in respuesta.splitlines():
+        if "no se puede consultar ninguna API" in linea:
+            prefijo = linea.split(":")[0]
+            print(f"  {prefijo}: servicio externo temporalmente no disponible.")
+        else:
+            print("  " + linea)
+
 
 def validate_consultar_fecha(usuario) -> None:
     encabezado("CONSULTAR INDICADOR POR FECHA")
     codigo = elegir_indicador()
     fecha = pedir_fecha("  Fecha (dd-mm-aaaa) o Enter para hoy: ")
     mostrar_indicadores(IndicadorDTO().consultarPorFecha(usuario, codigo, fecha))
+
 
 def validate_consultar_rango(usuario) -> None:
     encabezado("CONSULTAR INDICADOR POR RANGO DE FECHAS")
@@ -437,23 +451,76 @@ def validate_consultar_rango(usuario) -> None:
     if not lista and (hasta - desde).days >= IndicadorDTO.limite_dias:
         print(f"\n  Rango mayor a {IndicadorDTO.limite_dias} días: use un rango menor para buscarlo en la API.")
 
+
+def validate_calcular_pago_internacional(usuario) -> None:
+    encabezado("CÁLCULO DE PAGO EN MONEDA INTERNACIONAL")
+    validate_listar_empleados()
+    id_emp = solicitar_entero("  ID Empleado : ")
+    emp = EmpleadoDTO().buscarEmpleado(id_emp)
+    if emp is None:
+        error("No se encontró un empleado con ese ID.")
+        return
+    salario_clp = emp.obtenerSalarioDescifrado()
+    if salario_clp <= 0:
+        error("El empleado no posee un salario válido registrado.")
+        return
+    monedas = [("Dólar", "dolar"), ("Euro", "euro")]
+    mostrar_menu("MONEDA DE PAGO", [m[0] for m in monedas])
+    nombre_moneda, codigo_moneda = monedas[valida_opc(len(monedas)) - 1]
+    fecha = pedir_fecha("  Fecha tipo de cambio (dd-mm-aaaa) o Enter para hoy: ")
+    indicadores = IndicadorDTO().consultarPorFecha(usuario, codigo_moneda, fecha)
+    if not indicadores:
+        error("No hay tipo de cambio disponible para esa fecha (fin de semana o feriado).")
+        return
+    ind = indicadores[0]
+    tipo_cambio = ind.getValor()
+    if tipo_cambio <= 0:
+        error("El valor del indicador obtenido no es válido.")
+        return
+    monto_extranjero = salario_clp / tipo_cambio
+    fecha_str = ind.getFecha().strftime("%d-%m-%Y") if hasattr(ind.getFecha(), "strftime") else str(ind.getFecha())
+    tabla(
+        ["Empleado", "Salario CLP", "Moneda", "Tipo Cambio", "Fecha", "Total a Pagar"],
+        [[
+            emp.getNombEmplea(),
+            f"${formato_valor(salario_clp)}",
+            nombre_moneda,
+            f"${formato_valor(tipo_cambio)}",
+            fecha_str,
+            f"{formato_valor(monto_extranjero)} {codigo_moneda.upper()}"
+        ]]
+    )
+
+
 def menu_indicadores(usuario) -> None:
     if usuario.getRol() != "RRHH":
         error("Acceso denegado: solo el Gerente de Recursos Humanos.")
         return
     while True:
-        mostrar_menu("INDICADORES ECONÓMICOS", ["Actualizar datos desde la API", "Consultar por fecha", "Consultar por rango de fechas", "Volver"])
-        opc = valida_opc(4)
-        if opc == 4:
+        mostrar_menu("INDICADORES ECONÓMICOS", [
+            "Actualizar datos desde la API",
+            "Consultar por fecha",
+            "Consultar por rango de fechas",
+            "Calcular pago en moneda internacional",
+            "Volver"
+        ])
+        opc = valida_opc(5)
+        if opc == 5:
             return
         try:
             if opc == 1:
                 validate_actualizar_indicadores(usuario)
             elif opc == 2:
                 validate_consultar_fecha(usuario)
-            else:
+            elif opc == 3:
                 validate_consultar_rango(usuario)
+            else:
+                validate_calcular_pago_internacional(usuario)
         except PermissionError as ex:
             error(str(ex))
             return
+        except (ValueError, ConnectionError) as ex:
+            error(str(ex))
+        except Exception:
+            error("No fue posible completar la operación con el servicio externo.")
         pausa()

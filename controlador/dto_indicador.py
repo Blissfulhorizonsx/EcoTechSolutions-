@@ -5,7 +5,7 @@ from controlador.consultar_indicadores import consultar_indicador, codigos
 
 
 class IndicadorDTO:
-    rol_permitIdo = "RRHH"
+    rol_permitido = "RRHH"
     limite_dias = 31 
 
     def __validarAcceso(self, usuario) -> None:
