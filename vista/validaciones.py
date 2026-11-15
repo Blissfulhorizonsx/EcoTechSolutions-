@@ -426,9 +426,9 @@ def pedir_fecha(mensaje: str):
         if not texto:
             return datetime.now().date()
         try:
-            return datetime.strptime(texto, "%d-%m-%Y").date()
+            return datetime.strptime(texto, "%Y-%m-%d").date()
         except ValueError:
-            error("Formato inválido. Ejemplo: 15-01-2026")
+            error("Formato inválido. Ejemplo: 2026-11-15")
 
 
 def formato_valor(valor: float) -> str:
@@ -446,7 +446,7 @@ def elegir_indicador():
 def mostrar_indicadores(lista: list) -> None:
     filas = []
     for i in lista:
-        fecha_fmt = i.getFecha().strftime("%d-%m-%Y") if hasattr(i.getFecha(), "strftime") else str(i.getFecha())
+        fecha_fmt = i.getFecha().strftime("%Y-%m-%d") if hasattr(i.getFecha(), "strftime") else str(i.getFecha())
         filas.append([fecha_fmt,
                       nombres.get(i.getCodigo(), i.getCodigo().upper()),
                       formato_valor(i.getValor()), i.getAutor()])
@@ -469,15 +469,15 @@ def validate_actualizar_indicadores(usuario) -> None:
 def validate_consultar_fecha(usuario) -> None:
     encabezado("CONSULTAR INDICADOR POR FECHA")
     codigo = elegir_indicador()
-    fecha = pedir_fecha("  Fecha (dd-mm-aaaa) o Enter para hoy: ")
+    fecha = pedir_fecha("  Fecha (aaaa-mm-dd) o Enter para hoy: ")
     mostrar_indicadores(IndicadorDTO().consultarPorFecha(usuario, codigo, fecha))
 
 
 def validate_consultar_rango(usuario) -> None:
     encabezado("CONSULTAR INDICADOR POR RANGO DE FECHAS")
     codigo = elegir_indicador()
-    desde = pedir_fecha("  Desde (dd-mm-aaaa) o Enter para hoy: ")
-    hasta = pedir_fecha("  Hasta (dd-mm-aaaa) o Enter para hoy: ")
+    desde = pedir_fecha("  Desde (aaaa-mm-dd) o Enter para hoy: ")
+    hasta = pedir_fecha("  Hasta (aaaa-mm-dd) o Enter para hoy: ")
     if hasta < desde:
         error("La fecha final no puede ser anterior a la inicial.")
         return
@@ -502,7 +502,7 @@ def validate_calcular_pago_internacional(usuario) -> None:
     monedas = [("Dólar", "dolar"), ("Euro", "euro")]
     mostrar_menu("MONEDA DE PAGO", [m[0] for m in monedas])
     nombre_moneda, codigo_moneda = monedas[valida_opc(len(monedas)) - 1]
-    fecha = pedir_fecha("  Fecha tipo de cambio (dd-mm-aaaa) o Enter para hoy: ")
+    fecha = pedir_fecha("  Fecha tipo de cambio (aaaa-mm-dd) o Enter para hoy: ")
     indicadores = IndicadorDTO().consultarPorFecha(usuario, codigo_moneda, fecha)
     if not indicadores:
         error("No hay tipo de cambio disponible para esa fecha (fin de semana o feriado).")
@@ -513,7 +513,7 @@ def validate_calcular_pago_internacional(usuario) -> None:
         error("El valor del indicador obtenido no es válido.")
         return
     monto_extranjero = salario_clp / tipo_cambio
-    fecha_str = ind.getFecha().strftime("%d-%m-%Y") if hasattr(ind.getFecha(), "strftime") else str(ind.getFecha())
+    fecha_str = ind.getFecha().strftime("%Y-%m-%d") if hasattr(ind.getFecha(), "strftime") else str(ind.getFecha())
     tabla(
         ["Empleado", "Salario CLP", "Moneda", "Tipo Cambio", "Fecha", "Total a Pagar"],
         [[

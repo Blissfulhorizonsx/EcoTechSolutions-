@@ -44,7 +44,7 @@ class IndicadorDTO:
         for cod in self.__codigos(codigo):
             filas = IndicadorDAO().listarPorFecha(cod, fecha)
             if not filas:
-                self.actualizar(usuario, cod, fecha.strftime("%d-%m-%Y"))
+                self.actualizar(usuario, cod, fecha.strftime("%Y-%m-%d"))
                 filas = IndicadorDAO().listarPorFecha(cod, fecha)
             for f in filas or []:
                 resultado.append(self.__armar(f))
