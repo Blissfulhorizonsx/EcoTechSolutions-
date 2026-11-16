@@ -1,3 +1,5 @@
+import traceback
+
 from vista.validaciones import (
     inicial,
     validate_login,
@@ -54,6 +56,7 @@ def main() -> None:
         except KeyboardInterrupt:
             print("\n  [!] Interrupción detectada. El sistema no puede cerrarse con Ctrl+C.\n")
         except Exception:
+            traceback.print_exc()   # <-- temporal
             print("\n  [!] Ocurrió un error inesperado en el sistema.\n")
 
 

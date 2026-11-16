@@ -19,15 +19,15 @@ class RecuperacionDTO:
     def solicitarCodigo(self, nombreUsuario: str) -> str:
         usuario = UsuarioDTO().buscarUsuario(nombreUsuario.strip())
         if usuario is None:
-            return self.mensaje_generico
+            return self._dbg("usuario no existe")
 
         emp = EmpleadoDTO().buscarPorUsuario(usuario.getIdUsuario())
         if emp is None:
-            return self.mensaje_generico
+            return self._dbg("El usuario no tiene empleado asociado")
 
         correo = emp.obtenerCorreoDescifrado()
         if "@" not in correo:
-            return self.mensaje_generico
+            return self._dbg(f"Correo inválido tras descifrar: {correo!r}")
 
         idUsuario = usuario.getIdUsuario()
         if DaoRecuperacion().solicitudesRecientes(idUsuario, self.segundos_entre_solicitudes) > 0:
@@ -36,9 +36,11 @@ class RecuperacionDTO:
         codigo = f"{secrets.randbelow(1_000_000):06d}"
         codigoHash = bcrypt.hashpw(codigo.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
 
-        DaoRecuperacion().invalidarPendientes(idUsuario)
+        if DaoRecuperacion().solicitudesRecientes(idUsuario, self.segundos_entre_solicitudes) > 0:
+            return self._dbg("Solicitud demasiado reciente (60s)")
+
         if not DaoRecuperacion().crear(idUsuario, codigoHash, self.minutos_validez):
-            return self.mensaje_generico
+            return self._dbg("Fallo insertar en recuperacion_clave")
 
         cuerpo = (f"Hola {emp.getNombEmplea()},\n\n"
                   f"Tu código para restablecer la contraseña es: {codigo}\n"
@@ -48,7 +50,11 @@ class RecuperacionDTO:
 
         if not enviado and os.getenv("RECUPERACION_DEMO") == "1":
             print(f"  [DEMO] Código de recuperación: {codigo}")
-
+        return self.mensaje_generico
+    
+    def _dbg(self, msg: str) -> str:
+        if os.getenv("RECUPERACION_DEMO") == "1":
+            print(f" [DEBUG] {msg}")
         return self.mensaje_generico
 
     def restablecer(self, nombreUsuario: str, codigo: str, nuevaClave: str) -> tuple:
