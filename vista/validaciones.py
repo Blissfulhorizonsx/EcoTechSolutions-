@@ -203,6 +203,18 @@ def validate_crear_empleado():
         id_usuario if id_usuario > 0 else None)
     resultado(mensaje)
 
+def validate_eliminar_empleado():
+    encabezado("ELIMINAR EMPLEADO")
+    validate_listar_empleados()
+    id = solicitar_texto("  Ingrese el id del usuario : ",min_len=1)
+    empleado = EmpleadoDTO().buscarEmpleado(id)
+    if empleado is None:
+        error("Usuario no encontrado.")
+        return
+    if not solicitar_confirmacion(f"Está seguro que desea eliminar a {empleado.getNombEmplea()} con el id {empleado.getIdEmple()}"):
+        return
+    resultado(EmpleadoDTO().eliminarEmpleado(id))    
+
 def validate_agregar_empleado_dept():
     encabezado("ASIGNAR EMPLEADO A DEPARTAMENTO")
     validate_listar_empleados()
@@ -351,12 +363,13 @@ def validate_generar_informe(usuario_actual):
 def menu_empleados():
     while True:
         mostrar_menu("EMPLEADOS", ["Listar empleados", "Registrar empleado",
-                                   "Crear usuario de acceso", "Eliminar usuario", "Volver"])
-        opc = valida_opc(5)
+                                   "Eliminar empleado", "Crear usuario de acceso", "Eliminar usuario", "Volver"])
+        opc = valida_opc(6)
         if opc == 1: validate_listar_empleados()
         elif opc == 2: validate_crear_empleado()
-        elif opc == 3: validate_crear_usuario()
-        elif opc == 4: validate_eliminar_usuario() 
+        elif opc == 3: validate_eliminar_empleado()
+        elif opc == 4: validate_crear_usuario()
+        elif opc == 5: validate_eliminar_usuario() 
         else: return
         pausa()
 
