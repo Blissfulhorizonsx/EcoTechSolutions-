@@ -231,6 +231,22 @@ def validate_crear_usuario():
 
 
 
+def validate_eliminar_usuario():
+    encabezado("ELIMINAR USUARIO")
+    validate_listar_usuarios()
+    id = solicitar_texto("  Ingrese el id del usuario : ",min_len=1)
+    usuario = UsuarioDTO().buscarIdUsuario(id)
+    if usuario is None:
+        error("Usuario no encontrado.")
+        return
+    if not solicitar_confirmacion(f"Está seguro que desea eliminar a {usuario.getNombreUsuario()} con el id {usuario.getIdUsuario()}"):
+        return
+    resultado(UsuarioDTO().eliminarUsuario(id))
+
+
+
+
+
 def validate_listar_departamentos():
     encabezado("LISTADO DE DEPARTAMENTOS")
     lista = DepartamentoDTO().listarDepartamentos()
@@ -335,11 +351,12 @@ def validate_generar_informe(usuario_actual):
 def menu_empleados():
     while True:
         mostrar_menu("EMPLEADOS", ["Listar empleados", "Registrar empleado",
-                                   "Crear usuario de acceso", "Volver"])
-        opc = valida_opc(4)
+                                   "Crear usuario de acceso", "Eliminar usuario", "Volver"])
+        opc = valida_opc(5)
         if opc == 1: validate_listar_empleados()
         elif opc == 2: validate_crear_empleado()
         elif opc == 3: validate_crear_usuario()
+        elif opc == 4: validate_eliminar_usuario() 
         else: return
         pausa()
 

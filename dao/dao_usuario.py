@@ -34,6 +34,21 @@ class DaoUsuario:
         finally:
             objetoConex.closeConex()
         return resultado
+    
+    def buscarIdUsuario(self, usuario: object)-> dict:
+        sql = "SELECT idUsuario, nombreUsuario, rol FROM usuario WHERE idUsuario = %s"
+        resultado = None
+        objectoConex = self.getConex()
+        try:
+            cursor = objectoConex.getConex().cursor()
+            cursor.execute(sql, (usuario.getIdUsuario(), ))
+            resultado = cursor.fetchone()
+        except Exception:
+            pass
+        finally:
+            objectoConex.closeConex()
+        return resultado
+
 
     def agregarUsuario(self, user: object) -> str:
         sql = "INSERT INTO usuario (nombreUsuario, contrasenaHash, rol) VALUES (%s, %s, %s)"

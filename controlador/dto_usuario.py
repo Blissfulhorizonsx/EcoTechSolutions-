@@ -17,6 +17,11 @@ class UsuarioDTO:
         r = DaoUsuario().buscarUsuario(Usuario(nombreUsuario))
         return Usuario(r["nombreUsuario"], r["contrasenaHash"], r["rol"], r["idUsuario"]) if r is not None else None
 
+    def buscarIdUsuario(self, idUsuario: int):
+        r = DaoUsuario().buscarIdUsuario(Usuario("", idUsuario=idUsuario))
+        return Usuario(r["nombreUsuario"], rol=r['rol'], idUsuario=r["idUsuario"])if r is not None else None
+
+
     def validarLogin(self, nombreUsuario: str, clave: str) -> Usuario:
         r = DaoUsuario().buscarUsuario(Usuario(nombreUsuario))
         if r is not None and bcrypt.checkpw(clave.encode("utf-8"), r["contrasenaHash"].encode("utf-8")):
