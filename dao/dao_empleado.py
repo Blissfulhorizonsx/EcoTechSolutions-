@@ -68,24 +68,22 @@ class DaoEmpleado:
             objetoConex.closeConex()
         return mensaje
 
-    def actualizarEmpleado(self, emple: object) -> str:
-        sql = "UPDATE empleado SET idUsuario=%s, nombEmplea=%s, direccEmple=%s, numEmple=%s, mailEmple=%s, fchContrato=%s, salarioCifrado=%s, idDepart=%s WHERE idEmple=%s"
-        objetoConex = self.getConex()
+    def asignarUsuarioEmpleado(self, idEmple: int, idUsuario: int) -> str:
+        sql = "UPDATE empleado SET idUsuario = %s WHERE idEmple = %s"
         mensaje = ""
+        objetoConex = self.getConex()
         try:
             cursor = objetoConex.getConex().cursor()
-            cursor.execute(sql, (emple.getIdUsuario(), emple.getNombEmplea(), emple.getDireccEmple(), emple.getNumEmple(), emple.getMailEmple(), emple.getFchContrato(), emple.getSalarioCifrado(), emple.getIdDepart(), emple.getIdEmple()))
+            cursor.execute(sql, (idUsuario, idEmple))
             objetoConex.getConex().commit()
-            filas = cursor.rowcount
-            if filas > 0:
-                mensaje = "Datos modificados satisfactoriamente"
-            else:
-                mensaje = "No se realizaron cambios"
-        except Exception:
-            mensaje = "Problemas con la base de datos..vuelva a intentarlo"
+            mensaje = "Usuario asignado al empleado correctamente"
+        except Exception as ex:
+            objetoConex.getConex().rollback()
+            mensaje = f"Error al asignar el usuario: {ex}"
         finally:
             objetoConex.closeConex()
         return mensaje
+
 
     def eliminarEmpleado(self, emple: object) -> str:
         sql = "DELETE FROM empleado WHERE idEmple = %s"

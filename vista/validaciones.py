@@ -203,6 +203,8 @@ def validate_crear_empleado():
         id_usuario if id_usuario > 0 else None)
     resultado(mensaje)
 
+
+
 def validate_eliminar_empleado():
     encabezado("ELIMINAR EMPLEADO")
     validate_listar_empleados()
@@ -256,6 +258,41 @@ def validate_eliminar_usuario():
     resultado(UsuarioDTO().eliminarUsuario(id))
 
 
+def validate_asignar_usuario():
+    encabezado("ASIGNAR USUARIO A EMPLEADO")
+    empleados = EmpleadoDTO().listarEmpleados()
+    sin_usuario = [e for e in empleados if e.getIdUsuario() is None]
+    if not sin_usuario:
+        error("No hay empleados sin usuario de acceso.")
+        return
+    tabla(["ID", "Nombre", "Correo"],
+          [[e.getIdEmple(), e.getNombEmplea(), e.obtenerCorreoDescifrado()] for e in sin_usuario])
+    try:
+        idEmple = int(solicitar_texto("  ID del empleado : ", min_len=1))
+    except ValueError:
+        error("El ID debe ser un número.")
+        return
+    empleado = next((e for e in sin_usuario if e.getIdEmple() == idEmple), None)
+    if empleado is None:
+        error("Ese ID no corresponde a un empleado sin usuario.")
+        return
+    validate_listar_usuarios()
+    try:
+        idUsuario = int(solicitar_texto("  ID del usuario a asignar : ", min_len=1))
+    except ValueError:
+        error("El ID debe ser un número.")
+        return
+    usuario = UsuarioDTO().buscarIdUsuario(idUsuario)
+    if usuario is None:
+        error("No existe un usuario con ese ID.")
+        return
+    if any(e.getIdUsuario() == idUsuario for e in empleados):
+        error("Ese usuario ya está asignado a otro empleado.")
+        return
+    if not solicitar_confirmacion(
+            f"¿Asignar el usuario {usuario.getNombreUsuario()} al empleado {empleado.getNombEmplea()}?"):
+        return
+    resultado(EmpleadoDTO().asignarUsuario(idEmple, idUsuario))
 
 
 
@@ -363,13 +400,14 @@ def validate_generar_informe(usuario_actual):
 def menu_empleados():
     while True:
         mostrar_menu("EMPLEADOS", ["Listar empleados", "Registrar empleado",
-                                   "Eliminar empleado", "Crear usuario de acceso", "Eliminar usuario", "Volver"])
-        opc = valida_opc(6)
+                                   "Eliminar empleado","Asignar usuario a empleado", "Crear usuario de acceso", "Eliminar usuario", "Volver"])
+        opc = valida_opc(7)
         if opc == 1: validate_listar_empleados()
         elif opc == 2: validate_crear_empleado()
         elif opc == 3: validate_eliminar_empleado()
-        elif opc == 4: validate_crear_usuario()
-        elif opc == 5: validate_eliminar_usuario() 
+        elif opc == 4: validate_asignar_usuario()
+        elif opc == 5: validate_crear_usuario()
+        elif opc == 6: validate_eliminar_usuario() 
         else: return
         pausa()
 

@@ -77,11 +77,11 @@ CREATE TABLE indicadores (
 
 CREATE TABLE IF NOT EXISTS recuperacion_clave (
     idRecuperacion INT AUTO_INCREMENT PRIMARY KEY,
-    idUsuario      INT NOT NULL,              
-    codigoHash     VARCHAR(100) NOT NULL,     
-    expira         DATETIME NOT NULL,
-    usado          TINYINT(1) NOT NULL DEFAULT 0,
-    intentos       INT NOT NULL DEFAULT 0,
-    creado         DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (idUsuario) REFERENCES usuario(idUsuario) ON DELETE CASCADE
+    idUsuario INT NOT NULL,
+    codigoHash VARCHAR(100) NOT NULL,
+    expira DATETIME NOT NULL,
+    usado TINYINT(1) NOT NULL DEFAULT 0,
+    intentos INT NOT NULL DEFAULT 0,
+    creado DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (idUsuario) REFERENCES usuario (idUsuario) ON DELETE CASCADE
 );

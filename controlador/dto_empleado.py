@@ -42,6 +42,10 @@ class EmpleadoDTO:
                        tel_cifrado, mail_cifrado, fchContrato, cifrado, idDepart, idEmple=idEmple)
         return DaoEmpleado().actualizarEmpleado(emp)
 
+
+    def asignarUsuarioEmpleado(self, idEmple: int, idUsuario: int) -> str:
+        return DaoEmpleado().asignarUsuario(idEmple, idUsuario)
+
     def asignarDepartamento(self, idEmple: int, idDepart: int) -> str:
         return DaoEmpleado().asignarDepartamento(Empleado("", idDepart=idDepart, idEmple=idEmple))
 
