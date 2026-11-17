@@ -25,6 +25,6 @@ def enviar_correo(destino: str, asunto: str, cuerpo: str) -> bool:
             servidor.login(usuario, clave)
             servidor.send_message(msg)
         return True
-    except Exception as ex:
-        print(f"  [!] No se pudo enviar el correo: {type(ex).__name__}: {ex}")
+    except Exception:
+        print("  [!] No se pudo enviar el correo de recuperación.")
         return False
