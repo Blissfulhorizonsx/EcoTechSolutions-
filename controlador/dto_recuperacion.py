@@ -58,7 +58,6 @@ class RecuperacionDTO:
         return self.mensaje_generico
 
     def restablecer(self, nombreUsuario: str, codigo: str, nuevaClave: str) -> tuple:
-        """Devuelve (exito: bool, mensaje: str)."""
         invalido = (False, "Código inválido o expirado.")
 
         if len(nuevaClave) < self.min_largo_clave:

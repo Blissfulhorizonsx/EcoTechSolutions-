@@ -332,7 +332,6 @@ def validate_asignar_proyecto():
     resultado(AsignacionDTO().asignar(id_emp, id_proy))
 
 def __obtener_id_empleado(usuario):
-    """Empleado: usa su propio id. Admin: elige el empleado."""
     if usuario.getRol() == "ADMIN":
         return solicitar_entero("  ID Empleado : ")
     emp = EmpleadoDTO().buscarPorUsuario(usuario.getIdUsuario())

@@ -17,14 +17,12 @@ class RegistroTiempo:
 
     @staticmethod
     def __aTimedelta(valor):
-        # MySQL entrega TIME como timedelta; desde la vista puede venir como "HH:MM"
         if isinstance(valor, timedelta):
             return valor
         t = datetime.strptime(str(valor)[:5], "%H:%M")
         return timedelta(hours=t.hour, minutes=t.minute)
 
     def calcularHoras(self) -> str:
-        """Devuelve las horas trabajadas en formato HH:MM (ej: 08:30)."""
         if self.__horaInicio is None or self.__horaTermino is None:
             return "00:00"
         dif = self.__aTimedelta(self.__horaTermino) - self.__aTimedelta(self.__horaInicio)

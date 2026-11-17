@@ -2,11 +2,10 @@ class Usuario:
     def __init__(self, nombreUsuario, contrasena="", rol="EMPLEADO", idUsuario=None):
         self.__idUsuario = idUsuario
         self.__nombreUsuario = nombreUsuario
-        self.__contrasena = contrasena   # aquí viaja el HASH cuando se guarda
+        self.__contrasena = contrasena   
         self.__rol = rol
 
     def __str__(self):
-        # nunca incluyas la contraseña en el __str__
         return "{0} {1} {2}".format(self.__idUsuario, self.__nombreUsuario, self.__rol)
 
     def getIdUsuario(self):

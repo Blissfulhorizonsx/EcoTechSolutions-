@@ -20,8 +20,6 @@ class InformeDTO:
         return self.__armar(r) if r is not None else None
 
     def generarInforme(self, usuario, criterios: dict, formato: str = "TXT") -> Informe:
-        """usuario: objeto Usuario que lo pide.
-        criterios: {"idProyecto": int, "desde": date, "hasta": date}"""
         if usuario.getRol() != "ADMIN":
             return None
 
@@ -29,7 +27,6 @@ class InformeDTO:
         if proyecto is None:
             return None
 
-        # minutos totales por empleado, dentro del rango de fechas
         minutos = {}
         for r in RegistroTiempoDTO().listarPorProyecto(criterios["idProyecto"]):
             if criterios["desde"] <= r.getFchTrabajo() <= criterios["hasta"]:

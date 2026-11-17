@@ -12,7 +12,6 @@ class RegistroTiempoDTO:
                               r["horaTermino"], r["descripTareas"], r["idRegistro"])
 
     def __validarHoras(self, horaInicio: str, horaTermino: str):
-        """Devuelve un mensaje de error, o None si todo está bien."""
         try:
             ini = datetime.strptime(horaInicio, "%H:%M")
             fin = datetime.strptime(horaTermino, "%H:%M")

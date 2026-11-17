@@ -1,4 +1,4 @@
-import requests
+import requests 
 from datetime import datetime
 
 base_url_findic = "https://findic.cl/api"
